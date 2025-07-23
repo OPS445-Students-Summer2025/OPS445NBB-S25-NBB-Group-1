@@ -64,15 +64,42 @@ def check_who(userid):
         return None
     return None
 
-def write_log(userid, indate,login_time, logout_time):
+def check_program_stop():
+    try:
+        f = open("control.txt", "r")
+        line = f.readline().strip().lower()
+        parts = line.split(',')       
+        stop_flag = parts[0]
+        start_time = parts[1]
+        end_time = parts[2]
+        now = datetime.now().time()
+        now = now.strftime("%H:%M:%S")
+
+        if stop_flag == 'true':
+            return True
+        if start_time and end_time:
+            if now < start_time or now > end_time:
+                return True
+        
+    except:
+        return False
+    return False
+
+def write_log(userid, indate,login_time, logout_time,duration,remark):
     date_str = datetime.now().strftime("%Y-%m-%d")
     filename = f"{userid}_{date_str}.log"
+
     try:
-        with open(filename, 'a') as f:
-            f.write(f"{userid},{indate},{login_time},{logout_time}\n")
+        f = open(filename, 'a')
+        f.write(f"{userid},{indate},{login_time},{logout_time},{duration},{remark}\n")
     except:
         print_err("Failed to write log!")
 
+def calculate_duration():
+    user.logout_time = datetime.now().strftime("%H:%M:%S")
+    t1 = datetime.strptime(user.login_time, "%H:%M:%S")
+    t2 = datetime.strptime(user.logout_time, "%H:%M:%S")
+    return t2 - t1    
 
 if __name__ == "__main__":
     user = None
@@ -81,15 +108,28 @@ if __name__ == "__main__":
     while True:
         login_time = check_who(userid)
 
+        if check_program_stop():
+            print("program stop")
+            remark = "*"
+            if user is not None and login_time:
+                
+                duration = calculate_duration()
+
+                write_log(userid, user.date, user.login_time, user.logout_time,duration,remark)
+            sys.exit(1)
+
         if user is None:
             if login_time:
                 indate = datetime.now().date()
                 user = Userlogined(userid, indate, login_time)
         else:
             if not login_time:
+                remark = ""
                 user.logout_time = datetime.now().strftime("%H:%M:%S")
-                print("logout!")
-                write_log(userid, user.date, user.login_time, user.logout_time)
+                
+                duration = calculate_duration()
+
+                write_log(userid, user.date, user.login_time, user.logout_time,duration,remark)
                 user = None
 
         time.sleep(3)
