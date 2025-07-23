@@ -23,8 +23,9 @@ import subprocess
 from datetime import datetime
 
 class Userlogined:
-    def __init__(self, userid, login_time):
+    def __init__(self, userid, indate, login_time):
         self.userid = userid
+        self.date = indate
         self.login_time = login_time
         self.logout_time = None
 
@@ -57,18 +58,18 @@ def check_who(userid):
         for line in output.strip().split('\n'):
             if line.startswith(userid + " "):
                 parts = line.split()
-                login_time = f"{parts[2]} {parts[3]}:00"
+                login_time = f"{parts[3]}:00"
                 return login_time
     except:
         return None
     return None
 
-def write_log(userid, login_time, logout_time):
+def write_log(userid, indate,login_time, logout_time):
     date_str = datetime.now().strftime("%Y-%m-%d")
     filename = f"{userid}_{date_str}.log"
     try:
         with open(filename, 'a') as f:
-            f.write(f"{userid},{login_time},{logout_time}\n")
+            f.write(f"{userid},{indate},{login_time},{logout_time}\n")
     except:
         print_err("Failed to write log!")
 
@@ -82,12 +83,13 @@ if __name__ == "__main__":
 
         if user is None:
             if login_time:
-                user = Userlogined(userid, login_time)
+                indate = datetime.now().date()
+                user = Userlogined(userid, indate, login_time)
         else:
             if not login_time:
-                user.logout_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                user.logout_time = datetime.now().strftime("%H:%M:%S")
                 print("logout!")
-                write_log(userid, user.login_time, user.logout_time)
+                write_log(userid, user.date, user.login_time, user.logout_time)
                 user = None
 
         time.sleep(3)
