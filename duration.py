@@ -11,6 +11,3 @@ def parse_duration_to_seconds(duration_str):
     m = int(parts[1])
     s = int(parts[2])
     return h * 3600 + m * 60 + s
-
-print("Testing parse_duration_to_seconds:")
-print(parse_duration_to_seconds("01:30:00"))
