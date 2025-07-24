@@ -24,3 +24,14 @@ def format_seconds_to_duration(total_seconds):
 
 print("Testing format_seconds_to_duration:")
 print(format_seconds_to_duration(3661))
+
+from datetime import datetime
+
+def calculate_duration(login_time, logout_time):
+    t1 = datetime.strptime(login_time, "%H:%M:%S")
+    t2 = datetime.strptime(logout_time, "%H:%M:%S")
+    return t2 - t1
+
+print("Testing calculate_duration:")
+diff = calculate_duration("10:00:00", "12:30:30")
+print(diff)
