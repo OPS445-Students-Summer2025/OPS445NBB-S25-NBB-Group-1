@@ -95,73 +95,19 @@ def write_log(userid, indate,login_time, logout_time,duration,remark):
     except:
         print_err("Failed to write log!")
 
-def calculate_duration():
-    user.logout_time = datetime.now().strftime("%H:%M:%S")
+def calculate_duration(user):
     t1 = datetime.strptime(user.login_time, "%H:%M:%S")
     t2 = datetime.strptime(user.logout_time, "%H:%M:%S")
     return t2 - t1
 
-def parse_duration_to_seconds(duration_str):
-    parts = duration_str.strip().split(":")
-    h = int(parts[0])
-    m = int(parts[1])
-    s = int(parts[2])
-    return h * 3600 + m * 60 + s
+def print_report():
 
-def format_seconds_to_duration(total_seconds):
-    hours = total_seconds // 3600
-    remainder = total_seconds % 3600
-    minutes = remainder // 60
-    seconds = remainder % 60
-    return f"{hours}:{minutes:02d}:{seconds:02d}"
+    return True
 
-def sum_daily_duration(filename):
-    total_seconds = 0
-    try:
-        f = open(filename, 'r')
-        for line in f:
-            parts = line.strip().split(",")
-            if len(parts) >= 5:
-                duration_str = parts[4]
-                try:
-                    total_seconds += parse_duration_to_seconds(duration_str)
-                except:
-                    continue
-        f.close()
-    except FileNotFoundError:
-        pass
-    return total_seconds
-
-def write_report(userid):
-    today = datetime.now().date()
-    start_ordinal = today.toordinal() - 6
-    total_week_seconds = 0
-    run_date = datetime.now().strftime("%Y-%m-%d")
-
-    daily_durations = []
-
-    for i in range(7):
-        current_date = datetime.fromordinal(start_ordinal + i).date()
-        filename = f"{userid}_{current_date.strftime('%Y-%m-%d')}.log"
-        daily_total = sum_daily_duration(filename)
-        daily_durations.append((current_date, daily_total))
-        total_week_seconds += daily_total
-
-    report_file = f"{userid}_weekly_report_{run_date}.txt"
-    f = open(report_file, "w")
-    f.write(f"User: {userid}\n")
-    f.write(f"Date Range: {datetime.fromordinal(start_ordinal).date()} to {today}\n\n")
-    f.write("Daily Durations:\n")
-    for date, seconds in daily_durations:
-        f.write(f"{date}: {format_seconds_to_duration(seconds)}\n")
-    f.write("\n")
-    f.write(f"Total Duration (7 days): {format_seconds_to_duration(total_week_seconds)}\n")
-    f.close()
-
-if __name__ == "__main__":
+def track_user():
     user = None
     userid = get_input_user()
-    write_report(userid)
+ 
     while True:
         login_time = check_who(userid)
 
@@ -169,8 +115,9 @@ if __name__ == "__main__":
             print("program stop")
             remark = "*"
             if user is not None and login_time:
+                user.logout_time = datetime.now().strftime("%H:%M:%S")
                 
-                duration = calculate_duration()
+                duration = calculate_duration(user)
 
                 write_log(userid, user.date, user.login_time, user.logout_time,duration,remark)
             sys.exit(1)
@@ -184,10 +131,35 @@ if __name__ == "__main__":
                 remark = ""
                 user.logout_time = datetime.now().strftime("%H:%M:%S")
                 
-                duration = calculate_duration()
+                duration = calculate_duration(user)
 
                 write_log(userid, user.date, user.login_time, user.logout_time,duration,remark)
                 user = None
 
         time.sleep(3)
+
+if __name__ == "__main__":
+    print("Select an option:")
+    print("1 - Track user")
+    print("2 - Print report")
+    print("3 - add/del user")    
+    print("9 - exit")
+
+    choice = input("Enter your choice: ")
+
+    if choice == '1':
+        track_user()
+    elif choice == '2':
+        if print_report():
+            print("Report printed!")
+    elif choice == '9':
+        sys.exit(0)
+    else:
+        print("Invalid choice. Please try again.")
+
+
+    
+
+
+
 
