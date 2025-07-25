@@ -34,11 +34,12 @@ def print_err(err):
     sys.exit(1)
 
 def get_input_user():
-        userid = input("Enter userid: ")
-        if check_user_in_sys(userid):
-            return userid
-        else:
-            print_err("Invalid userid!")
+    userid = input("Enter userid: ")
+    if check_user_in_sys(userid):
+        return userid
+    else:
+        print_err("Invalid userid!")
+    return
 
 def check_user_in_sys(userid):
     try:
@@ -81,8 +82,7 @@ def check_program_stop():
             return True
         if start_time and end_time:
             if now < start_time or now > end_time:
-                return True
-        
+                return True        
     except:
         return False
     return False
@@ -127,72 +127,120 @@ def read_and_group(file_path):
 
 def report_duration(grouped):
     total_seconds = 0
-    print("Grouped Entries with Duration:")
+    #print("Grouped Entries with Duration:")
     for (user, date, start_time), end_time in grouped.items():
         try:
             start_dt = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M:%S")
             end_dt = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M:%S")
-        except ValueError as ve:
-            print(f"Skipping entry due to time format error: {user}, {date}, {start_time}, {end_time}")
-            continue
+        except ValueError :
+            print_err("Failed to print!")
 
         duration = (end_dt - start_dt).total_seconds()
         total_seconds += duration
-        print(f"{user},{date},{start_time},{end_time},{int(duration)} seconds")
+        #print(f"{user},{date},{start_time},{end_time},{int(duration)} seconds")
 
-    hours = total_seconds // 3600
-    minutes = (total_seconds % 3600) // 60
-    seconds = total_seconds % 60
-    total_time_str = f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
-    return total_time_str
+    #hours = total_seconds // 3600
+    #minutes = (total_seconds % 3600) // 60
+    #seconds = total_seconds % 60
+    #total_time_str = f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+    #return total_time_str
+    return total_seconds
+
+#def print_report():
+#    userid = get_input_user()
+#    today = datetime.now().strftime("%Y-%m-%d")
+#    file_path = f"{userid}_{today}.log"  
+#    grouped_entries = read_and_group(file_path)
+#    total_seconds = report_duration(grouped_entries)
+#    print(f"\nTotal Duration: {total_seconds}")
+#    return True
+
+
+def format_hms(total_seconds):
+    hours = int(total_seconds // 3600)
+    minutes = int((total_seconds % 3600) // 60)
+    seconds = int(total_seconds % 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 def print_report():
-    userid = get_input_user()
-    today = datetime.now().strftime("%Y-%m-%d")
-    file_path = f"{userid}_{today}.log"  
-    grouped_entries = read_and_group(file_path)
-    total = report_duration(grouped_entries)
-    print(f"\nTotal Duration: {total}")
-    return True
+    # there is duration in log file (calculated from the time record being written)
+    # but the duration is not used in report, instead the duration is calculated 
+    # again using group
+
+    try:
+        userid = get_input_user()
+        today = datetime.now().date()
+        total_seconds = 0
+        report_lines = []
+
+        report_lines.append(f"user: {userid}")
+        report_lines.append("Daily durations:")
+        for i in range(7):
+            date_check = datetime.fromordinal(today.toordinal() - i).date()
+            file_path = f"{userid}_{date_check}.log"
+            if not os.path.exists(file_path):
+                continue
+            grouped_entries = read_and_group(file_path)
+            day_seconds = report_duration(grouped_entries)  # must return seconds
+            day_hms = format_hms(day_seconds)
+            report_lines.append(f"{date_check} - {day_hms}")
+            total_seconds += day_seconds
+
+        total_hms = format_hms(total_seconds)
+        report_lines.append(f"\nTotal Duration (last 7 days): {total_hms}")
+
+        report_filename = f"{userid}_weekly_report_{today}.txt"
+        f = open(report_filename, 'w')
+        for line in report_lines:
+            f.write(line + '\n')
+        f.close()
+
+        print(f"Report saved to: {report_filename}")
+        return True
+
+    except Exception as e:
+        print(f"Error in print_report: {e}")
+        return False
 
 
 def track_user():
     user = None
     userid = get_input_user()
 
-    while True:
-        login_time = check_who(userid)
-    # Write record to log file if
-    # 1 user is logout
-    # 2 program stops (by control flag or out of time range)
-    # in case of abnormal end such as ctrl-c, crash..., no write to log
-    
-        if check_program_stop():
-            print("program stop")
-            remark = "*"
-            if user is not None and login_time:
-                user.logout_time = datetime.now().strftime("%H:%M:%S")
-                
-                duration = calculate_duration(user)
+    try:
+        while True:
+            login_time = check_who(userid)
+            # Write record to log file if
+            # 1 user is logout
+            # 2 program stops (by control flag or out of time range)
+            # in case of abnormal end such as ctrl-c, crash..., no write to log
 
-                write_log(userid, user.date, user.login_time, user.logout_time,duration,remark)
-            sys.exit(1)
+            if check_program_stop():
+                print("program stop")
+                remark = "*"
+                if user is not None and login_time:
+                    user.logout_time = datetime.now().strftime("%H:%M:%S")
+                    duration = calculate_duration(user)
+                    write_log(userid, user.date, user.login_time, user.logout_time, duration, remark)
+                sys.exit(1)
 
-        if user is None:
-            if login_time:
-                indate = datetime.now().date()
-                user = Userlogined(userid, indate, login_time)
-        else:
-            if not login_time:
-                remark = ""
-                user.logout_time = datetime.now().strftime("%H:%M:%S")
-                
-                duration = calculate_duration(user)
+            if user is None:
+                if login_time:
+                    indate = datetime.now().date()
+                    user = Userlogined(userid, indate, login_time)
+            else:
+                if not login_time:
+                    remark = ""
+                    user.logout_time = datetime.now().strftime("%H:%M:%S")
+                    duration = calculate_duration(user)
+                    write_log(userid, user.date, user.login_time, user.logout_time, duration, remark)
+                    user = None
 
-                write_log(userid, user.date, user.login_time, user.logout_time,duration,remark)
-                user = None
+            time.sleep(3)
 
-        time.sleep(3)
+    except Exception as e:
+        print(f"Error in track_user: {e}")
+
 
 if __name__ == "__main__":
     print("Select an option:")
@@ -206,8 +254,7 @@ if __name__ == "__main__":
     if choice == '1':
         track_user()
     elif choice == '2':
-        if print_report():
-            print("Report printed!")
+        print_report()            
     elif choice == '9':
         sys.exit(0)
     else:
