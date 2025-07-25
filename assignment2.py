@@ -65,6 +65,8 @@ def check_who(userid):
     return None
 
 def check_program_stop():
+    # assume working hour is not cross day
+    # assume user can not login within working hour
     try:
         f = open("control.txt", "r")
         line = f.readline().strip().lower()
@@ -100,17 +102,71 @@ def calculate_duration(user):
     t2 = datetime.strptime(user.logout_time, "%H:%M:%S")
     return t2 - t1
 
-def print_report():
+from datetime import datetime
 
+def read_and_group(file_path):
+    grouped = {}
+
+    f = open(file_path, 'r')
+    for line in f:
+        if not line.strip():
+            continue  
+        try:
+            user, date, start_time, end_time, duration, log_remark = line.strip().split(',')
+        except ValueError:
+            print_err("Failed to print!")
+
+        key = (user, date, start_time)
+        if key not in grouped:
+            grouped[key] = end_time
+        else:
+            grouped[key] = max(grouped[key], end_time)  # Keep latest end_time
+    f.close()
+
+    return grouped
+
+def report_duration(grouped):
+    total_seconds = 0
+    print("Grouped Entries with Duration:")
+    for (user, date, start_time), end_time in grouped.items():
+        try:
+            start_dt = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M:%S")
+            end_dt = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M:%S")
+        except ValueError as ve:
+            print(f"Skipping entry due to time format error: {user}, {date}, {start_time}, {end_time}")
+            continue
+
+        duration = (end_dt - start_dt).total_seconds()
+        total_seconds += duration
+        print(f"{user},{date},{start_time},{end_time},{int(duration)} seconds")
+
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    total_time_str = f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+    return total_time_str
+
+def print_report():
+    userid = get_input_user()
+    today = datetime.now().strftime("%Y-%m-%d")
+    file_path = f"{userid}_{today}.log"  
+    grouped_entries = read_and_group(file_path)
+    total = report_duration(grouped_entries)
+    print(f"\nTotal Duration: {total}")
     return True
+
 
 def track_user():
     user = None
     userid = get_input_user()
- 
+
     while True:
         login_time = check_who(userid)
-
+    # Write record to log file if
+    # 1 user is logout
+    # 2 program stops (by control flag or out of time range)
+    # in case of abnormal end such as ctrl-c, crash..., no write to log
+    
         if check_program_stop():
             print("program stop")
             remark = "*"
@@ -142,8 +198,8 @@ if __name__ == "__main__":
     print("Select an option:")
     print("1 - Track user")
     print("2 - Print report")
-    print("3 - add/del user")    
-    print("9 - exit")
+    print("3 - Add/delete user")    
+    print("9 - Exit")
 
     choice = input("Enter your choice: ")
 
