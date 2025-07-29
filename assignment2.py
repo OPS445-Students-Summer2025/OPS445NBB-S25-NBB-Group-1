@@ -12,6 +12,13 @@ import time
 import subprocess
 from datetime import datetime
 
+class Userlogined:
+    def __init__(self, userid, indate, login_time):
+        self.userid = userid
+        self.date = indate
+        self.login_time = login_time
+        self.logout_time = None
+
 def check_who(userid):
     try:
         output = subprocess.check_output(["who"], text=True)
@@ -62,3 +69,22 @@ def track_user():
 
     except Exception as e:
         print(f"Error in track_user: {e}")
+
+if __name__ == "__main__":
+    print("Select an option:")
+    print("1 - Track user")
+    print("2 - Print report")
+    print("3 - Add/delete user")    
+    print("9 - Exit")
+
+    choice = input("Enter your choice: ")
+
+    if choice == '1':
+        track_user()
+    elif choice == '2':
+        print_report()            
+    elif choice == '9':
+        sys.exit(0)
+    else:
+        print("Invalid choice. Please try again.")
+
