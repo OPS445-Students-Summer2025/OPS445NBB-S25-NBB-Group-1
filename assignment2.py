@@ -103,8 +103,8 @@ def add_user():
 
         print(f"User '{username}' created successfully.")
 
-    except Exception as e:
-        print(f"Error in add_user: {e}")    
+    except Exception:
+        print("Error in add_user!")        
 
 def delete_user():
     try:
@@ -114,9 +114,9 @@ def delete_user():
             sys.exit(1)
         subprocess.run(['sudo', 'userdel', '-r', username], check=True)
         print(f"User '{username}' deleted successfully.")
-
-    except Exception as e:
-        print(f"Error in add_user: {e}")            
+        
+    except Exception:
+        print("Error in delete_user!")      
 
 if __name__ == "__main__":
     print("Select an option:")
@@ -139,5 +139,5 @@ if __name__ == "__main__":
     elif choice == '9':
         sys.exit(0)
     else:
-        print("Invalid choice. Please try again.")
+        print("Invalid choice! Please try again.")
 
