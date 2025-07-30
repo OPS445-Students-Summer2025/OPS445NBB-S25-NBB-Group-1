@@ -1,16 +1,56 @@
-  GNU nano 7.2                          3.txt *                                 
 #!/usr/bin/env python3
 
 '''
 OPS445 Assignment 2
 Program: assignment2.py 
-Author:vishesh
+Author: Vishesh
 '''
+
 import os
 import sys
 import time
 import subprocess
 from datetime import datetime
+
+def print_report():
+    # there is duration in log file (calculated from the time record being written)
+    # but the duration is not used in report, instead the duration is calculated 
+    # again using group
+
+    try:
+        userid = get_input_user()
+        today = datetime.now().date()
+        total_seconds = 0
+        report_lines = []
+
+        report_lines.append(f"user: {userid}")
+        report_lines.append("Daily durations:")
+        for i in range(7):
+            date_check = datetime.fromordinal(today.toordinal() - i).date()
+            file_path = f"{userid}_{date_check}.log"
+            if not os.path.exists(file_path):
+                continue
+            grouped_entries = read_and_group(file_path)
+            day_seconds = report_duration(grouped_entries)  # must return seconds
+            day_hms = format_hms(day_seconds)
+            report_lines.append(f"{date_check} - {day_hms}")
+            total_seconds += day_seconds
+
+        total_hms = format_hms(total_seconds)
+        report_lines.append(f"\nTotal Duration (last 7 days): {total_hms}")
+
+        report_filename = f"{userid}_weekly_report_{today}.txt"
+        f = open(report_filename, 'w')
+        for line in report_lines:
+            f.write(line + '\n')
+        f.close()
+
+        print(f"Report saved to: {report_filename}")
+        return True
+
+    except Exception as e:
+        print(f"Error in print_report: {e}")
+        return False
 
 def format_hms(total_seconds):
     hours = int(total_seconds // 3600)
@@ -59,3 +99,4 @@ def read_and_group(file_path):
     f.close()
 
     return grouped
+
