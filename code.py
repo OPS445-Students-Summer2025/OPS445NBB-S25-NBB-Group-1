@@ -9,6 +9,8 @@ Author:vishesh
 import os
 import sys
 import time
+import subprocess
+from datetime import datetime
 
 def format_hms(total_seconds):
     hours = int(total_seconds // 3600)
@@ -37,3 +39,23 @@ def report_duration(grouped):
     #return total_time_str
     return total_seconds
 
+def read_and_group(file_path):
+    grouped = {}
+
+    f = open(file_path, 'r')
+    for line in f:
+        if not line.strip():
+            continue  
+        try:
+            user, date, start_time, end_time, duration, log_remark = line.strip().split(',')
+        except ValueError:
+            print_err("Failed to print!")
+
+        key = (user, date, start_time)
+        if key not in grouped:
+            grouped[key] = end_time
+        else:
+            grouped[key] = max(grouped[key], end_time)  # Keep latest end_time
+    f.close()
+
+    return grouped
