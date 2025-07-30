@@ -35,3 +35,15 @@ def check_user_in_sys(userid):
     except PermissionError:
         print_err("Permission denied accessing /etc/passwd!")
     return False
+
+def check_who(userid):
+    try:
+        output = subprocess.check_output(["who"], text=True)
+        for line in output.strip().split('\n'):
+            if line.startswith(userid + " "):
+                parts = line.split()
+                login_time = f"{parts[3]}:00"
+                return login_time
+    except:
+        return None
+    return None
