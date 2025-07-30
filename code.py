@@ -16,3 +16,24 @@ def format_hms(total_seconds):
     seconds = int(total_seconds % 60)
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
+def report_duration(grouped):
+    total_seconds = 0
+    #print("Grouped Entries with Duration:")
+    for (user, date, start_time), end_time in grouped.items():
+        try:
+            start_dt = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M:%S")
+            end_dt = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M:%S")
+        except ValueError :
+            print_err("Failed to print!")
+
+        duration = (end_dt - start_dt).total_seconds()
+        total_seconds += duration
+        #print(f"{user},{date},{start_time},{end_time},{int(duration)} seconds")
+
+    #hours = total_seconds // 3600
+    #minutes = (total_seconds % 3600) // 60
+    #seconds = total_seconds % 60
+    #total_time_str = f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+    #return total_time_str
+    return total_seconds
+
