@@ -47,3 +47,25 @@ def check_who(userid):
     except:
         return None
     return None
+
+def check_program_stop():
+    # assume working hour is not cross day
+    # assume user can not login within working hour
+    try:
+        f = open("control.txt", "r")
+        line = f.readline().strip().lower()
+        parts = line.split(',')       
+        stop_flag = parts[0]
+        start_time = parts[1]
+        end_time = parts[2]
+        now = datetime.now().time()
+        now = now.strftime("%H:%M:%S")
+
+        if stop_flag == 'true':
+            return True
+        if start_time and end_time:
+            if now < start_time or now > end_time:
+                return True        
+    except:
+        return False
+    return False
