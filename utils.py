@@ -79,3 +79,8 @@ def write_log(userid, indate,login_time, logout_time,duration,remark):
         f.write(f"{userid},{indate},{login_time},{logout_time},{duration},{remark}\n")
     except:
         print_err("Failed to write log!")
+
+def calculate_duration(user):
+    t1 = datetime.strptime(user.login_time, "%H:%M:%S")
+    t2 = datetime.strptime(user.logout_time, "%H:%M:%S")
+    return t2 - t1
