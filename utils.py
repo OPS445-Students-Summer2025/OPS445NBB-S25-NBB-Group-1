@@ -69,3 +69,13 @@ def check_program_stop():
     except:
         return False
     return False
+
+def write_log(userid, indate,login_time, logout_time,duration,remark):
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    filename = f"{userid}_{date_str}.log"
+
+    try:
+        f = open(filename, 'a')
+        f.write(f"{userid},{indate},{login_time},{logout_time},{duration},{remark}\n")
+    except:
+        print_err("Failed to write log!")
