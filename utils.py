@@ -23,3 +23,15 @@ def get_input_user():
     else:
         print_err("Invalid userid!")
     return
+
+def check_user_in_sys(userid):
+    try:
+        f = open("/etc/passwd", "r")
+        for line in f:
+            if line.startswith(userid + ":"):
+                return True
+    except FileNotFoundError:
+        print_err("File /etc/passwd not found!")
+    except PermissionError:
+        print_err("Permission denied accessing /etc/passwd!")
+    return False
