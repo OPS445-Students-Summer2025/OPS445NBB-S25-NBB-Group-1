@@ -2,7 +2,7 @@
 
 '''
 OPS445 Assignment 2
-Program: assignment2.py 
+Program: assignment2.py
 Author: Sadam Adebola
 '''
 
@@ -10,21 +10,20 @@ import os
 import sys
 import time
 import subprocess
+import argparse
+import getpass
 from datetime import datetime
 
-def print_err(err):
-    print("Error:", err)
-    sys.exit(1)
 
-def get_input_user():
-    userid = input("Enter userid: ")
-    if check_user_in_sys(userid):
-        return userid
-    else:
-        print_err("Invalid userid!")
-    return
+#def get_input_user():
+#    userid = input("Enter userid: ")
+#    if check_user_in_sys(userid):
+#        return userid
+#    else:
+#        print_err("Invalid userid!")
+#    return
 
-def check_user_in_sys(userid):
+def check_user_in_sys(userid): # validate userid
     try:
         f = open("/etc/passwd", "r")
         for line in f:
@@ -36,19 +35,7 @@ def check_user_in_sys(userid):
         print_err("Permission denied accessing /etc/passwd!")
     return False
 
-def check_who(userid):
-    try:
-        output = subprocess.check_output(["who"], text=True)
-        for line in output.strip().split('\n'):
-            if line.startswith(userid + " "):
-                parts = line.split()
-                login_time = f"{parts[3]}:00"
-                return login_time
-    except:
-        return None
-    return None
-
-def check_program_stop():
+def check_program_stop(): # control program run
     # assume working hour is not cross day
     # assume user can not login within working hour
     try:
@@ -68,19 +55,10 @@ def check_program_stop():
                 return True        
     except:
         return False
-    return False
-
-def write_log(userid, indate,login_time, logout_time,duration,remark):
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    filename = f"{userid}_{date_str}.log"
-
-    try:
-        f = open(filename, 'a')
-        f.write(f"{userid},{indate},{login_time},{logout_time},{duration},{remark}\n")
-    except:
-        print_err("Failed to write log!")
+    return False # if control file doesn't exist, program continue to run
 
 def calculate_duration(user):
+    # calculate login duration
     t1 = datetime.strptime(user.login_time, "%H:%M:%S")
     t2 = datetime.strptime(user.logout_time, "%H:%M:%S")
     return t2 - t1
