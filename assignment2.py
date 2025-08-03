@@ -11,7 +11,11 @@ with anyone or anything except for submission for grading. I understand
 that the Academic Honesty Policy will be enforced and
 violators will be reported and appropriate action will be taken.
 
-Author: Chung Yin Choi, Do An Truong, Vishesh, Sadam Adebola
+Author: 
+Chung Yin Choi, 
+Do An Truong, 
+Vishesh, S
+adam Adebola
 Semester: Summer 2025
 Description: This program returns an end date (including day of week), 
 given a start date and number of days
@@ -35,6 +39,7 @@ class Userlogined: # user object for login session info
 def print_err(err):
     print("Error:", err)
     sys.exit(1)
+    
 def check_user_in_sys(userid): # validate userid
     try:
         f = open("/etc/passwd", "r")
@@ -90,6 +95,7 @@ def write_log(userid, indate,login_time, logout_time,duration,remark): # log for
         f.write(f"{userid},{indate},{login_time},{logout_time},{duration},{remark}\n")
     except:
         print_err("Failed to write log!")
+        
 def calculate_duration(user):
     # calculate login duration
     t1 = datetime.strptime(user.login_time, "%H:%M:%S")
@@ -138,6 +144,7 @@ def report_duration(grouped):
     #total_time_str = f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
     #return total_time_str
     return total_seconds
+    
 def format_hms(total_seconds):
     hours = int(total_seconds // 3600)
     minutes = int((total_seconds % 3600) // 60)
@@ -192,6 +199,7 @@ def print_report(userid):
     except Exception as e:
         print(f"Error in print_report: {e}")
         return False    
+        
 def config_user():
     # display user menu
     print("---------------------------------------")
