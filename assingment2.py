@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 '''
 OPS445 Assignment 2
@@ -6,13 +5,7 @@ Program:
 Author:Vishesh
 '''
 
-import os
-import sys
-import time
-import subprocess
-import argparse
-import getpass
-from datetime import datetime
+
 
 def print_report(userid):
     # there is duration in log file (calculated from the time record being written)
