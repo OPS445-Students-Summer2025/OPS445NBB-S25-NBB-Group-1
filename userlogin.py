@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 
 '''
 OPS445 Assignment 2
@@ -7,13 +7,6 @@ Author: Do An Truong
 Student ID: 166335232
 '''
 
-import os
-import sys
-import time
-import subprocess
-import argparse
-import getpass
-from datetime import datetime
 
 class Userlogined: # user object for login session info
     def __init__(self, userid, indate, login_time):
