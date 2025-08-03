@@ -1,4 +1,4 @@
-# Winter 2025 Assignment 2
+﻿# Winter 2025 Assignment 2
 User time tracking system
 This program tracks a user login to the system, save login and logout time to log file
 It generates weekly duration report (last 7 days)
@@ -45,4 +45,5 @@ Person 1 - main function and class
 Person 2 - track user function
 Person 3 - utility functions such as validate userid, check who command, check control file
 Person 4 - report printing function
+
 
