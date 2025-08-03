@@ -11,7 +11,7 @@ with anyone or anything except for submission for grading. I understand
 that the Academic Honesty Policy will be enforced and
 violators will be reported and appropriate action will be taken.
 
-Author: Chung Yin Choi, Do An Truong
+Author: Chung Yin Choi, Do An Truong, Vishesh, Sadam Adebola
 Semester: Summer 2025
 Description: This program returns an end date (including day of week), 
 given a start date and number of days
